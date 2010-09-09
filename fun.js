@@ -12,8 +12,12 @@ var fun = function(){
     var pages = {
         'imprectionism': [function(){
             var spastic = function(){
-                var f,x,y,w,h;
+                var f,r,g,b,x,y,w,h;
                 for(var i=0; i < 2000; i++){
+                    r = Math.round(Math.random()*255);
+                    g = Math.round(Math.random()*255);
+                    b = Math.round(Math.random()*255);
+                    a = Math.random();
                     x = Math.random()*canvas.width;
                     y = Math.random()*canvas.height;
                     w = 1 + Math.random()*5;
