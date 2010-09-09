@@ -1,0 +1,8 @@
+#nav{
+	list-style:none;
+}
+
+#nav li{
+	display:inline;
+	margin-right:10px;
+}
