@@ -10,7 +10,7 @@ var fun = function(){
     };
 
     var pages = {
-        'imprectionism': [function(){
+        'van pollock 2.0': [function(){
             var spastic = function(){
                 var f,r,g,b,x,y,w,h;
                 for(var i=0; i < 2000; i++){
@@ -28,7 +28,7 @@ var fun = function(){
             }
             setInterval(spastic, 50);
         }, 'what? you expect me to finish the tutorial before i make something? pffft'],
-        'impressionism':[function(){
+        'mirage':[function(){
             var impression_size = 7;
             var cminx = $("#umm").offset().left;
             var cmaxx = cminx + canvas.width;
@@ -84,7 +84,79 @@ var fun = function(){
                 setInterval(impress, 100);
             }
             img.src = 'images/bliss.jpg';
-        }, 'imprectionism gave me the right idea (move the mouse up and down)'],
+        }, 'move the mouse up and down'],
+        'particles':[function(){
+            var luts = 0;
+            var lut = {};
+            var sqrt = function(x){
+                x = ~~x;
+                if(x&luts!=x){ lut[x] = Math.sqrt(x); luts = luts | x;}
+                return lut[x];
+            };
+            var max_size = 2
+            var ps = [];
+            var nps = 150;
+            for(var i=0; i < nps; i++){
+//                 ps[i]  = [(i + 1)*100,
+//                           (i+1)*100,
+//                           1 + Math.random()*max_size,
+//                           0,0]
+                ps[i]  = [Math.random()*canvas.width,
+                          Math.random()*canvas.height,
+                          .3 + Math.random()*max_size,
+                          .5 - Math.random(), .5-Math.random()];
+            }
+            var bg_fill_alpha = .37;
+            var fx, fy,f,dx,dy,d, i, j, pi, pix, piy, pim, m, pj, black = rgb(0,0,0,bg_fill_alpha), white = rgb(255,255,255);
+            ctx.fillStyle = black;
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            var make_history = function(){
+                ctx.fillStyle = black;
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = white;
+                ctx.strokeStyle = white;
+                for(i=0; i < nps; i++){
+                    pi = ps[i];
+                    pix = pi[0];
+                    piy = pi[1];
+                    fx = 0, fy = 0;
+                    ctx.beginPath();
+                    for(j=0; j < nps; j++){
+                        if(j == i) continue;
+                        pj = ps[j];
+                        dx = pj[0] - pix;
+                        dy = pj[1] - piy;
+
+                        d = Math.sqrt((dx*dx) + (dy*dy));
+                        //d = Math.abs(dx) + Math.abs(dy);
+                        d = Math.max(d,(pi[2]+pj[2])*6);
+                        if(d > 150) continue;
+                        f = Math.exp(pj[2]) / (d*d);
+                        fx += f*(dx/d);
+                        fy += f*(dy/d);
+                        if(d > 50) continue;
+                        ctx.strokeStyle = rgb(255,255,255,.2*(1-(d/50)));
+                        ctx.moveTo(pix,piy);
+                        ctx.lineTo(pj[0],pj[1]);
+                        ctx.closePath();
+                    }
+                    ctx.stroke();
+                    pi[3] += fx;
+                    pi[4] += fy;
+                    pi[0] += pi[3];
+                    pi[1] += pi[4];
+                    if(pi[0] < 0) pi[0] += canvas.width;
+                    if(pi[0] > canvas.width) pi[0] -= canvas.width;
+                    if(pi[1] < 0) pi[1] += canvas.height;
+                    if(pi[1] > canvas.height) pi[1] -= canvas.height;
+                    ctx.beginPath();
+                    ctx.arc(pi[0],pi[1],pi[2], 0, Math.PI*2);
+                    ctx.fill();
+                }
+            };
+            x = setInterval(make_history, 25);
+            //            $("body").bind('keypress',function(e){make_history();});
+        }, 'obligatory, really'],
         'stop':[function(){},'precious, precious battery']
     };
 
@@ -107,7 +179,7 @@ var fun = function(){
 
         // show me the fun
         window.onhashchange = fun.refresh;
-        var page = pages[location.hash.substr(1)] || pages.imprectionism;
+        var page = pages[location.hash.substr(1)] || pages['van pollock 2.0'];
         $("#caption").html(page[1]);
         page[0]();
     };
