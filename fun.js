@@ -86,65 +86,76 @@ var fun = function(){
             img.src = 'images/bliss.jpg';
         }, 'move the mouse up and down'],
         'particles':[function(){
-            var luts = 0;
-            var lut = {};
-            var sqrt = function(x){
-                x = ~~x;
-                if(x&luts!=x){ lut[x] = Math.sqrt(x); luts = luts | x;}
-                return lut[x];
-            };
             var max_size = 2
             var ps = [];
-            var nps = 150;
+            var nps = 200;
             for(var i=0; i < nps; i++){
-//                 ps[i]  = [(i + 1)*100,
-//                           (i+1)*100,
-//                           1 + Math.random()*max_size,
-//                           0,0]
-                ps[i]  = [Math.random()*canvas.width,
-                          Math.random()*canvas.height,
-                          .3 + Math.random()*max_size,
-                          .5 - Math.random(), .5-Math.random()];
+//                  ps[i]  = [(i + 1)*10,
+//                            100,
+//                            1,
+//                            0,0]
+                    ps[i]  = [Math.random()*canvas.width,
+                              Math.random()*canvas.height,
+                              .3 + Math.random()*max_size,
+                              .5 - Math.random(), .5-Math.random()];
+//                 ps[i]  = [50,
+//                           (i+1)*70,
+//                           1,
+//                           0,0];
+                 if(Math.random() > .8){ ps[i][2] = ps[i][2]*1.6; }
+                 ps[i][5] = Math.exp(ps[i][2]);
             }
-            var bg_fill_alpha = .37;
-            var fx, fy,f,dx,dy,d, i, j, pi, pix, piy, pim, m, pj, black = rgb(0,0,0,bg_fill_alpha), white = rgb(255,255,255);
+            var bg_fill_alpha = 1;
+            var interval;
+            var fs,fx,fy,f,dx,dy,d,d2,i,j,pi,pix,piy,pim,m,pj,black = rgb(0,0,0,bg_fill_alpha), white = rgb(255,255,255);
             ctx.fillStyle = black;
             ctx.fillRect(0,0,canvas.width,canvas.height);
+            var lw = rgb(255,255,255,.1);
+            var sqrt = {}, sqr = {};
+            var max_d = ~~(((canvas.width*canvas.width) + (canvas.height*canvas.height))*1.2);
+            var min_d2 = 400;
+            for(var x=0; x < max_d; x++){
+                //sqrt[x] = Math.sqrt(x);
+                sqrt[x] = Math.sqrt(x > min_d2 ? x : min_d2);
+            }
+            for(var x=0; x < Math.sqrt(max_d*1.1); x++){
+                sqr[x] = x*x;
+                sqr[-1*x] = sqr[x];
+            }
+            sqrt[0] = 1; // saves us using if to avoid computing force of node against itself
+            sqr[0] = 1;
+            var logged = false;
+            var forces = [];
             var make_history = function(){
                 ctx.fillStyle = black;
                 ctx.fillRect(0,0,canvas.width,canvas.height);
                 ctx.fillStyle = white;
-                ctx.strokeStyle = white;
                 for(i=0; i < nps; i++){
                     pi = ps[i];
                     pix = pi[0];
                     piy = pi[1];
                     fx = 0, fy = 0;
-                    ctx.beginPath();
+                    //ctx.beginPath();
                     for(j=0; j < nps; j++){
-                        if(j == i) continue;
                         pj = ps[j];
                         dx = pj[0] - pix;
                         dy = pj[1] - piy;
-
-                        d = Math.sqrt((dx*dx) + (dy*dy));
-                        //d = Math.abs(dx) + Math.abs(dy);
-                        d = Math.max(d,(pi[2]+pj[2])*6);
-                        if(d > 150) continue;
-                        f = Math.exp(pj[2]) / (d*d);
+                        d2 = ~~((sqr[~~dx]) + (sqr[~~dy]));
+                        d = sqrt[d2];
+                        f = pj[5] / sqr[~~d];
                         fx += f*(dx/d);
                         fy += f*(dy/d);
-                        if(d > 50) continue;
-                        ctx.strokeStyle = rgb(255,255,255,.2*(1-(d/50)));
-                        ctx.moveTo(pix,piy);
-                        ctx.lineTo(pj[0],pj[1]);
-                        ctx.closePath();
+                        //if(d > 50) continue;
+                        //ctx.strokeStyle = rgb(255,255,255,.2*(1-(d/50)));
+                        //ctx.moveTo(pix,piy);
+                        //ctx.lineTo(pj[0],pj[1]);
+                        //ctx.closePath();
                     }
-                    ctx.stroke();
+                    //ctx.stroke();
                     pi[3] += fx;
                     pi[4] += fy;
-                    pi[0] += pi[3];
-                    pi[1] += pi[4];
+                    pi[0] += pi[3] * .8;
+                    pi[1] += pi[4] * .8;
                     if(pi[0] < 0) pi[0] += canvas.width;
                     if(pi[0] > canvas.width) pi[0] -= canvas.width;
                     if(pi[1] < 0) pi[1] += canvas.height;
@@ -154,8 +165,8 @@ var fun = function(){
                     ctx.fill();
                 }
             };
-            x = setInterval(make_history, 25);
-            //            $("body").bind('keypress',function(e){make_history();});
+            interval = setInterval(make_history, 25);
+            //$("body").bind('keypress',function(e){make_history();});
         }, 'obligatory, really'],
         'stop':[function(){},'precious, precious battery']
     };
