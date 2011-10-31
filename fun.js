@@ -87,12 +87,14 @@ var fun = function(){
             img.src = 'images/bliss.jpg';
         }, 'move the mouse up and down'],        
         'boxfitting':[function(){
-            num       = 20; //starting num and running total
-            var maxnum    = 2000;
+            num       = 10; //starting num and running total
+            var maxnum    = 4000;
             var dimx      = 267;
             var dim       = 400;
             var dimborder = 5;
             var growth    = 2;
+            var maxwidth  = 8;
+            var gutter    = 1;
             boxes     = new Array();
             var time, ctx, dupe_ctx;
             function init_collisions(){
@@ -143,21 +145,21 @@ var fun = function(){
             }
 
             Box.prototype.expand = function () {
-                var obstructed = false;
+                var obstructed = this.d > maxwidth;
                 var check_obstruction = function(j,k){ if(collisions[j][k] > 1) obstructed = true; }
                 this.on_every_pixel(check_obstruction);
                 if(!obstructed){
                     this.d += growth;
                     if(this.x + this.d > dimx + dimborder*2 || this.y + this.d > dim + dimborder*2) obstructed = true;
                     //check for obstructions
-                    for(var i = this.x + this.d - growth; i < this.x + this.d; i++){
-                        for (var j = this.y; j < this.y + this.d; j++){
+                    for(var i = this.x + this.d - growth; i < this.x + this.d + gutter; i++){
+                        for (var j = this.y; j < this.y + this.d + gutter; j++){
                             if(!collisions[i])console.log(i);
                             if(collisions[i][j] > 0) obstructed = true;
                         }
                     }
-                    for(var j = this.y + this.d - growth; j < this.y + this.d; j++){
-                        for (var i = this.x; i < this.x + this.d; i++){
+                    for(var j = this.y + this.d - growth; j < this.y + this.d + gutter; j++){
+                        for (var i = this.x; i < this.x + this.d + gutter; i++){
                             if(collisions[i][j] > 0) obstructed = true;
                         }
                     }
@@ -203,7 +205,6 @@ var fun = function(){
                     for(var i = 0; i < collisions.length; i++)
                         for(var j = 0; j < collisions[i].length; j++)
                             if(collisions[i][j] && (collisions[i][j] > 0)) count++;
-                    console.log(count)
                 }
                 ctx.fillRect(0,0,dimx+dimborder*2,dim+dimborder*2);
                 setInterval(draw, 100);
